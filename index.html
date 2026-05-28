@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RoomSync</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d0d1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Background gradient blobs */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 50%;
+      height: 70%;
+      background: radial-gradient(ellipse, rgba(120,0,30,0.55) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 50%;
+      height: 70%;
+      background: radial-gradient(ellipse, rgba(10,20,80,0.6) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      padding: 20px;
+    }
+
+    /* ── Constellation SVG Logo ── */
+    .logo-svg { margin-bottom: 16px; animation: floatLogo 4s ease-in-out infinite; }
+    @keyframes floatLogo {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    /* ── Title ── */
+    h1 {
+      font-size: clamp(52px, 8vw, 88px);
+      font-weight: 900;
+      background: linear-gradient(135deg, #FF4444 0%, #FF8C00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #8888aa;
+      margin-bottom: 40px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: rgba(22, 22, 40, 0.85);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 44px 52px;
+      backdrop-filter: blur(12px);
+      max-width: 440px;
+      margin: 0 auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    .card h2 {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #8888aa;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    /* ── Sync Button ── */
+    .btn-sync {
+      background: linear-gradient(135deg, #FF4444, #FF8C00);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 56px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+      box-shadow: 0 6px 28px rgba(255,68,68,0.45);
+      letter-spacing: 0.3px;
+    }
+    .btn-sync:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 10px 36px rgba(255,68,68,0.6);
+    }
+    .btn-sync:active { transform: scale(0.97); }
+
+    /* pulse ring */
+    .btn-wrap { position: relative; display: inline-block; }
+    .pulse-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50px;
+      border: 2px solid rgba(255,100,50,0.4);
+      animation: pulse 2s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(1.15); opacity: 0; }
+    }
+
+    /* ── Animated constellation dots ── */
+    .dot { animation: blink 2s ease-in-out infinite; }
+    .dot:nth-child(1)  { animation-delay: 0s;    }
+    .dot:nth-child(2)  { animation-delay: 0.4s;  }
+    .dot:nth-child(3)  { animation-delay: 0.8s;  }
+    .dot:nth-child(4)  { animation-delay: 1.2s;  }
+    .dot:nth-child(5)  { animation-delay: 1.6s;  }
+    .dot:nth-child(6)  { animation-delay: 0.6s;  }
+    @keyframes blink {
+      0%,100% { opacity: 1;   r: 5; }
+      50%      { opacity: 0.4; r: 3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Animated Constellation Logo -->
+    <svg class="logo-svg" width="160" height="110" viewBox="0 0 160 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Lines -->
+      <line x1="80" y1="55" x2="30"  y2="25"  stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      <line x1="80" y1="55" x2="135" y2="20"  stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      <line x1="80" y1="55" x2="145" y2="70"  stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      <line x1="80" y1="55" x2="50"  y2="85"  stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      <line x1="80" y1="55" x2="15"  y2="65"  stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      <line x1="30" y1="25" x2="135" y2="20"  stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+      <line x1="135" y1="20" x2="145" y2="70" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+      <line x1="15" y1="65" x2="50"  y2="85"  stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+
+      <!-- Center glowing dot -->
+      <circle cx="80" cy="55" r="9" fill="rgba(255,80,80,0.3)"/>
+      <circle cx="80" cy="55" r="6" fill="#FF4444"/>
+
+      <!-- Outer dots -->
+      <circle class="dot" cx="30"  cy="25"  r="5" fill="#FFD700"/>
+      <circle class="dot" cx="135" cy="20"  r="4" fill="#A78BFA"/>
+      <circle class="dot" cx="145" cy="70"  r="5" fill="#60A5FA"/>
+      <circle class="dot" cx="50"  cy="85"  r="4" fill="#34D399"/>
+      <circle class="dot" cx="15"  cy="65"  r="4" fill="#F472B6"/>
+      <circle class="dot" cx="110" cy="90"  r="3" fill="#FBBF24"/>
+    </svg>
+
+    <h1>RoomSync</h1>
+    <p class="subtitle">Sync your room with your Buddy!</p>
+
+    <div class="card">
+      <h2>Sync Your Room</h2>
+      <p>Connect with your Buddy and sync your room for a shared experience.</p>
+      <div class="btn-wrap">
+        <div class="pulse-ring"></div>
+        <button  onclick="window.location.href='signin.html'">Sync Now</button>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
