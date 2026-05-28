@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RoomSync – Sign In</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Segoe UI',Arial,sans-serif;
+      background:#0d0d1a;
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      position:relative;overflow:hidden;
+    }
+    body::before{content:'';position:fixed;top:-20%;left:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(120,0,30,.55) 0%,transparent 70%);pointer-events:none;}
+    body::after{content:'';position:fixed;bottom:-20%;right:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(10,20,80,.6) 0%,transparent 70%);pointer-events:none;}
+
+    .wrap{position:relative;z-index:10;width:100%;max-width:440px;padding:20px;text-align:center;}
+
+    .logo-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;}
+    .logo-row svg{animation:float 4s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+    h1{font-size:38px;font-weight:900;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .sub{color:#8888aa;font-size:13px;margin-bottom:28px;}
+
+    .card{background:rgba(22,22,40,.9);border:1px solid rgba(255,255,255,.07);
+      border-radius:20px;padding:34px 36px;backdrop-filter:blur(12px);
+      box-shadow:0 20px 60px rgba(0,0,0,.5);}
+
+    .card-title{color:#fff;font-size:20px;font-weight:700;margin-bottom:22px;text-align:left;}
+
+    .field{margin-bottom:16px;text-align:left;}
+    .field label{display:block;color:#aaa;font-size:12px;margin-bottom:6px;font-weight:500;letter-spacing:.5px;}
+    .field input{
+      width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;
+      transition:border-color .2s;
+    }
+    .field input:focus{border-color:#FF6B35;}
+    .field input::placeholder{color:#555;}
+
+    .forgot-row{display:flex;justify-content:flex-end;margin-top:-8px;margin-bottom:16px;}
+    .forgot-link{color:#FF8C00;font-size:12px;cursor:pointer;text-decoration:none;background:none;border:none;font-family:inherit;}
+    .forgot-link:hover{text-decoration:underline;}
+
+    /* Forgot OTP panel – hidden by default */
+    #forgotPanel{display:none;background:rgba(255,100,50,.08);border:1px solid rgba(255,100,50,.2);
+      border-radius:12px;padding:16px;margin-bottom:16px;text-align:left;}
+    #forgotPanel p{color:#aaa;font-size:12px;margin-bottom:10px;}
+    .inline-row{display:flex;gap:8px;}
+    .inline-row input{flex:1;}
+    .btn-sm{padding:13px 16px;border:none;border-radius:10px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;
+      font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+    .btn-sm:hover{opacity:.85;}
+    .btn-sm:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* OTP input row that appears after clicking forgot */
+    #otpRow{display:none;margin-top:10px;}
+    #newPassRow{display:none;margin-top:10px;}
+
+    .btn-main{
+      width:100%;border:none;border-radius:50px;padding:15px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);
+      color:#fff;font-size:16px;font-weight:700;cursor:pointer;
+      transition:transform .2s,box-shadow .2s;
+      box-shadow:0 6px 24px rgba(255,68,68,.4);margin-top:4px;
+    }
+    .btn-main:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(255,68,68,.55);}
+    .btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    .divider{display:flex;align-items:center;gap:10px;margin:18px 0;}
+    .divider hr{flex:1;border:none;border-top:1px solid rgba(255,255,255,.1);}
+    .divider span{color:#555;font-size:12px;}
+
+    .signup-row{color:#888;font-size:13px;}
+    .signup-row a{color:#FF8C00;text-decoration:none;font-weight:600;}
+    .signup-row a:hover{text-decoration:underline;}
+
+    .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:left;}
+    .msg.error{background:rgba(255,68,68,.15);color:#ff6b6b;border:1px solid rgba(255,68,68,.3);}
+    .msg.success{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .dot{animation:blink 2s ease-in-out infinite;}
+    .dot:nth-child(1){animation-delay:0s;}.dot:nth-child(2){animation-delay:.4s;}
+    .dot:nth-child(3){animation-delay:.8s;}.dot:nth-child(4){animation-delay:1.2s;}
+    .dot:nth-child(5){animation-delay:1.6s;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-row">
+    <svg width="48" height="36" viewBox="0 0 160 110" fill="none">
+      <line x1="80" y1="55" x2="30"  y2="25"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="135" y2="20"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="145" y2="70"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="50"  y2="85"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="15"  y2="65"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <circle cx="80"  cy="55" r="7" fill="#FF4444"/>
+      <circle class="dot" cx="30"  cy="25" r="5" fill="#FFD700"/>
+      <circle class="dot" cx="135" cy="20" r="4" fill="#A78BFA"/>
+      <circle class="dot" cx="145" cy="70" r="5" fill="#60A5FA"/>
+      <circle class="dot" cx="50"  cy="85" r="4" fill="#34D399"/>
+      <circle class="dot" cx="15"  cy="65" r="4" fill="#F472B6"/>
+    </svg>
+    <h1>RoomSync</h1>
+  </div>
+  <p class="sub">Sync your room with your Buddy!</p>
+
+  <div class="card">
+    <p class="card-title">Welcome Back 👋</p>
+    <div id="alertBox"></div>
+
+    <!-- ── Forgot Password Panel ── -->
+    <div id="forgotPanel">
+      <p>Enter your email to receive a password reset OTP.</p>
+      <div class="inline-row">
+        <input type="email" id="forgotEmail" placeholder="your@email.com" class="field input"/>
+        <button class="btn-sm" id="sendForgotOtpBtn" onclick="sendForgotOTP()">Send OTP</button>
+      </div>
+      <div id="otpRow">
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <input type="text" id="forgotOtpInput" maxlength="6" placeholder="6-digit OTP"
+            style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+              border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;"/>
+          <button class="btn-sm" onclick="verifyForgotOTP()">Verify</button>
+        </div>
+      </div>
+      <div id="newPassRow">
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <input type="password" id="newPassInput" placeholder="New password"
+            style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+              border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;"/>
+          <button class="btn-sm" onclick="resetPassword()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sign In Form ── -->
+    <div class="field">
+      <label>EMAIL</label>
+      <input type="email" id="email" placeholder="your@email.com"/>
+    </div>
+    <div class="field">
+      <label>PASSWORD</label>
+      <input type="password" id="password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') signin()"/>
+    </div>
+    <div class="forgot-row">
+      <button class="forgot-link" onclick="toggleForgot()">Forgot Password?</button>
+    </div>
+
+    <button class="btn-main" id="signinBtn" onclick="signin()">Sign In</button>
+
+    <div class="divider"><hr/><span>OR</span><hr/></div>
+    <p class="signup-row">Don't have an account? <a href="signup.html">Sign Up</a></p>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  let forgotOpen = false;
+  let forgotVerified = false;
+  let forgotEmailVerified = '';
+
+  function showAlert(msg, type='error'){
+    const b = document.getElementById('alertBox');
+    b.innerHTML = `<div class="msg ${type}">${msg}</div>`;
+    setTimeout(()=> b.innerHTML='', 5000);
+  }
+
+  function toggleForgot(){
+    forgotOpen = !forgotOpen;
+    document.getElementById('forgotPanel').style.display = forgotOpen ? 'block' : 'none';
+  }
+
+  async function sendForgotOTP(){
+    const email = document.getElementById('forgotEmail').value.trim();
+    if(!email) return showAlert('Enter your email first.');
+    const btn = document.getElementById('sendForgotOtpBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Sending…';
+    try{
+      const r = await fetch(`${API}/auth/send-otp`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email, type:'forgot'})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+      showAlert('OTP sent to your email!', 'success');
+      document.getElementById('otpRow').style.display = 'block';
+      forgotEmailVerified = email;
+    }catch(e){ showAlert(e.message); }
+    finally{ btn.disabled=false; btn.textContent='Resend OTP'; }
+  }
+
+  async function verifyForgotOTP(){
+    const otp = document.getElementById('forgotOtpInput').value.trim();
+    if(!otp) return showAlert('Enter the OTP.');
+    try{
+      const r = await fetch(`${API}/auth/verify-otp`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email: forgotEmailVerified, otp})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+      showAlert('OTP verified! Set your new password.','success');
+      document.getElementById('newPassRow').style.display = 'block';
+      document.getElementById('otpRow').style.display = 'none';
+      forgotVerified = true;
+    }catch(e){ showAlert(e.message); }
+  }
+
+  async function resetPassword(){
+    if(!forgotVerified) return showAlert('Verify OTP first.');
+    const pass = document.getElementById('newPassInput').value.trim();
+    if(pass.length < 6) return showAlert('Password must be at least 6 characters.');
+    try{
+      const r = await fetch(`${API}/auth/reset-password`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email: forgotEmailVerified, newPassword: pass})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+      showAlert('Password reset! Please sign in.','success');
+      document.getElementById('forgotPanel').style.display = 'none';
+      forgotOpen = false;
+    }catch(e){ showAlert(e.message); }
+  }
+
+  async function signin(){
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    if(!email || !password) return showAlert('Please fill in all fields.');
+
+    const btn = document.getElementById('signinBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Signing in…';
+    try{
+      const r = await fetch(`${API}/auth/signin`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email, password})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+
+      // Store user data
+      localStorage.setItem('rs_token', d.token);
+      localStorage.setItem('rs_user',  JSON.stringify(d.user));
+
+      showAlert('Sign in successful!','success');
+      setTimeout(()=> window.location.href = 'role.html', 800);
+    }catch(e){
+      showAlert(e.message);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  // If already logged in, redirect
+  if(localStorage.getItem('rs_token') && localStorage.getItem('rs_user')){
+    const u = JSON.parse(localStorage.getItem('rs_user'));
+    if(u.role === 'seller') window.location.href = 'seller.html';
+    else if(u.role === 'customer') window.location.href = 'customer.html';
+  }
+</script>
+</body>
+</html>

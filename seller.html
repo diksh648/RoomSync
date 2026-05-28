@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>RoomSync – Seller</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d0d1a;min-height:100vh;color:#fff;}
+    body::before{content:'';position:fixed;top:-20%;left:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(120,0,30,.4) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    body::after{content:'';position:fixed;bottom:-20%;right:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(10,20,80,.4) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    header{position:sticky;top:0;z-index:100;background:rgba(13,13,26,.92);
+      border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);
+      display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;}
+    .logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .logo span{font-size:22px;font-weight:900;background:linear-gradient(135deg,#FF4444,#FF8C00);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .nav-tabs{display:flex;gap:8px;}
+    .tab{padding:8px 20px;border:none;border-radius:50px;font-size:14px;font-weight:600;
+      cursor:pointer;transition:all .2s;background:rgba(255,255,255,.07);color:#aaa;position:relative;}
+    .tab.active{background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;box-shadow:0 4px 16px rgba(255,68,68,.35);}
+    .tab:hover:not(.active){background:rgba(255,255,255,.12);color:#fff;}
+    .notif-dot{position:absolute;top:4px;right:6px;width:9px;height:9px;border-radius:50%;
+      background:#FF4444;border:2px solid #0d0d1a;display:none;}
+    .header-right{display:flex;align-items:center;gap:10px;}
+    .sub-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+    .sub-badge.active{background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);}
+    .sub-badge.inactive{background:rgba(255,68,68,.15);color:#ff6b6b;border:1px solid rgba(255,68,68,.3);cursor:pointer;}
+    .user-name{color:#aaa;font-size:13px;}
+    .btn-logout{padding:7px 14px;border:1px solid rgba(255,80,80,.4);border-radius:50px;
+      background:transparent;color:#ff6b6b;font-size:12px;cursor:pointer;font-weight:600;}
+    main{position:relative;z-index:1;padding:24px;max-width:920px;margin:0 auto;}
+    .section{display:none;}.section.active{display:block;}
+    .card{background:rgba(22,22,40,.85);border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;padding:28px;backdrop-filter:blur(10px);}
+    .card h2{font-size:18px;font-weight:700;margin-bottom:20px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .field{margin-bottom:14px;}
+    .field label{display:block;color:#aaa;font-size:11px;font-weight:600;letter-spacing:.6px;margin-bottom:5px;}
+    .field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;
+      color:#fff;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none;resize:vertical;}
+    .field select option{background:#1a1a2e;}.field input:focus,.field select:focus,.field textarea:focus{border-color:#FF6B35;}
+    .field input::placeholder,.field textarea::placeholder{color:#555;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .photo-drop{border:2px dashed rgba(255,100,50,.35);border-radius:12px;padding:24px;
+      text-align:center;cursor:pointer;transition:all .2s;}
+    .photo-drop:hover{border-color:#FF6B35;background:rgba(255,100,50,.05);}
+    .photo-drop input{display:none;}.photo-drop p{color:#888;font-size:13px;margin-top:6px;}
+    .photo-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+    .photo-previews img{width:76px;height:76px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.1);}
+    .loc-row{display:flex;gap:8px;}
+    .loc-row input{flex:1;}
+    .btn-loc{padding:12px 14px;border:none;border-radius:10px;
+      background:rgba(255,100,50,.12);border:1px solid rgba(255,100,50,.3);
+      color:#FF8C00;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+    .btn-main{width:100%;border:none;border-radius:50px;padding:15px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;font-size:16px;
+      font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;
+      box-shadow:0 6px 24px rgba(255,68,68,.4);margin-top:6px;}
+    .btn-main:hover{transform:translateY(-2px);}
+    .btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .pg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+    .pg-card{background:rgba(22,22,40,.85);border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;overflow:hidden;transition:transform .2s;}
+    .pg-card:hover{transform:translateY(-3px);}
+    .pg-card .photos{height:175px;overflow:hidden;position:relative;}
+    .pg-card .photos img{width:100%;height:100%;object-fit:cover;}
+    .pg-card .no-photo{width:100%;height:100%;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:36px;}
+    .pg-info{padding:14px 16px;}
+    .pg-info h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+    .pg-info .loc{font-size:12px;color:#888;margin-bottom:8px;}
+    .pg-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+    .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge.g{background:rgba(167,139,250,.15);color:#A78BFA;}
+    .badge.s{background:rgba(96,165,250,.15);color:#60A5FA;}
+    .stats{display:flex;gap:14px;font-size:12px;color:#888;margin-bottom:10px;}
+    .btn-del{width:100%;padding:8px;border:1px solid rgba(255,68,68,.3);border-radius:8px;
+      background:transparent;color:#ff6b6b;font-size:12px;font-weight:600;cursor:pointer;}
+    .chat-layout{display:flex;height:calc(100vh - 130px);background:rgba(22,22,40,.85);
+      border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;}
+    .chat-sidebar{width:250px;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;flex-shrink:0;}
+    .chat-sidebar-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;font-weight:700;}
+    .conv-list{flex:1;overflow-y:auto;}
+    .conv-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+    .conv-item:hover{background:rgba(255,255,255,.05);}
+    .conv-item.active{background:rgba(255,100,50,.08);}
+    .conv-item .cn{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px;}
+    .conv-item .cm{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .unread-badge{background:#FF4444;color:#fff;border-radius:50%;width:18px;height:18px;
+      font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;float:right;margin-top:-16px;}
+    .chat-main{flex:1;display:flex;flex-direction:column;}
+    .chat-head{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;}
+    .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF4444,#FF8C00);
+      display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+    .messages-area{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
+    .empty-chat{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#555;text-align:center;}
+    .bubble{max-width:68%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word;}
+    .bubble.sent{background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+    .bubble.recv{background:rgba(255,255,255,.08);color:#ddd;align-self:flex-start;border-bottom-left-radius:4px;}
+    .bubble .time{font-size:10px;opacity:.55;margin-top:4px;display:block;}
+    .reply-btn{font-size:10px;color:rgba(255,255,255,.45);background:none;border:none;cursor:pointer;margin-top:3px;display:block;}
+    .reply-btn:hover{color:#fff;}
+    .reply-bar{background:rgba(255,100,50,.1);border-left:3px solid #FF6B35;padding:8px 12px;
+      font-size:12px;color:#aaa;margin:0 14px 6px;border-radius:0 8px 8px 0;display:none;}
+    .reply-bar button{float:right;background:none;border:none;color:#888;cursor:pointer;font-size:14px;}
+    .chat-input-row{padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px;}
+    .chat-input-row input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+      border-radius:24px;padding:10px 16px;color:#fff;font-size:14px;outline:none;}
+    .chat-input-row input:focus{border-color:#FF6B35;}
+    .chat-input-row input::placeholder{color:#555;}
+    .btn-send{padding:10px 18px;border:none;border-radius:24px;background:linear-gradient(135deg,#FF4444,#FF8C00);
+      color:#fff;font-size:13px;font-weight:700;cursor:pointer;}
+    .empty-state{text-align:center;padding:60px 20px;color:#555;}
+    .msg-box{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;}
+    .msg-box.error{background:rgba(255,68,68,.15);color:#ff6b6b;border:1px solid rgba(255,68,68,.3);}
+    .msg-box.success{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+    .spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:5px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    @media(max-width:600px){.two-col{grid-template-columns:1fr;}.chat-sidebar{width:180px;}header{padding:0 10px;}}
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#">
+    <canvas id="logoCanvas" width="36" height="26"></canvas>
+    <span>RoomSync</span>
+  </a>
+  <div class="nav-tabs">
+    <button class="tab" id="tabChat" onclick="showTab('chat')">💬 Chat<span class="notif-dot" id="chatDot"></span></button>
+    <button class="tab" id="tabView" onclick="showTab('view')">📋 My Listings</button>
+    <button class="tab active" id="tabUpload" onclick="showTab('upload')">➕ Upload PG</button>
+  </div>
+  <div class="header-right">
+    <span class="sub-badge inactive" id="subBadge" onclick="goPayment()">⚡ Subscribe ₹200/mo</span>
+    <span class="user-name" id="userName"></span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<main>
+  <!-- Upload -->
+  <div class="section active" id="secUpload">
+    <div class="card">
+      <h2>🏠 List Your PG</h2>
+      <div id="uploadAlert"></div>
+      <div class="field">
+        <label>PHOTOS (Up to 10)</label>
+        <div class="photo-drop" onclick="document.getElementById('photoInput').click()">
+          <div style="font-size:28px">📷</div>
+          <p>Click to upload photos</p>
+          <input type="file" id="photoInput" multiple accept="image/*" onchange="previewPhotos(this)"/>
+        </div>
+        <div class="photo-previews" id="photoPreviews"></div>
+      </div>
+      <div class="field"><label>PG NAME</label><input type="text" id="pgName" placeholder="e.g. Sunrise PG for Boys"/></div>
+      <div class="field">
+        <label>LOCATION</label>
+        <div class="loc-row">
+          <input type="text" id="location" placeholder="e.g. Sector 62, Noida"/>
+          <button class="btn-loc" onclick="detectLocation()">📍 Auto Detect</button>
+        </div>
+        <input type="hidden" id="lat"/><input type="hidden" id="lng"/>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>GENDER ALLOWED</label>
+          <select id="genderAllowed">
+            <option value="">Select…</option>
+            <option value="Male">Male Only</option>
+            <option value="Female">Female Only</option>
+            <option value="Any">Any Gender</option>
+          </select>
+        </div>
+        <div class="field"><label>ROOM SIZE</label>
+          <select id="roomSize">
+            <option value="">Select…</option>
+            <option value="Single">Single</option>
+            <option value="Double">Double Sharing</option>
+            <option value="Triple">Triple Sharing</option>
+            <option value="Dormitory">Dormitory</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>RULES (Optional)</label>
+        <textarea id="rules" rows="3" placeholder="e.g. No smoking, visitors till 9 PM…"></textarea>
+      </div>
+      <button class="btn-main" id="uploadBtn" onclick="uploadPG()">🚀 Post Listing</button>
+    </div>
+  </div>
+
+  <!-- View Listings -->
+  <div class="section" id="secView">
+    <div id="viewAlert"></div>
+    <div class="pg-grid" id="pgGrid"><div class="empty-state">Loading…</div></div>
+  </div>
+
+  <!-- Chat -->
+  <div class="section" id="secChat">
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-head">💬 Messages</div>
+        <div class="conv-list" id="convList">
+          <div style="padding:16px;text-align:center;color:#555;font-size:12px">No conversations yet.</div>
+        </div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-head" id="chatHead"><span style="color:#555;font-weight:400;font-size:13px">Select a conversation</span></div>
+        <div class="messages-area" id="messagesArea">
+          <div class="empty-chat"><div style="font-size:36px;margin-bottom:10px">💬</div><p>0 messages</p></div>
+        </div>
+        <div class="reply-bar" id="replyBar"></div>
+        <div class="chat-input-row" id="chatInputRow" style="display:none">
+          <input type="text" id="chatInput" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+          <button class="btn-send" onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script>
+const API    = 'http://localhost:3000/api';
+const SERVER = 'http://localhost:3000';
+const token  = localStorage.getItem('rs_token');
+const user   = JSON.parse(localStorage.getItem('rs_user') || 'null');
+if (!token || !user) { window.location.replace('signin.html'); }
+if (user.role !== 'seller') { window.location.replace('role.html'); }
+
+// Prevent back to role page
+history.replaceState(null,'',location.href);
+window.addEventListener('popstate', () => history.replaceState(null,'',location.href));
+
+document.getElementById('userName').textContent = user.fullName;
+const authH = {'Authorization':`Bearer ${token}`,'Content-Type':'application/json'};
+
+// ── Animated Logo ─────────────────────────────────────────────────────────────
+const lc = document.getElementById('logoCanvas'), lx = lc.getContext('2d');
+const LW=lc.width,LH=lc.height;
+const lnodes=[{x:18,y:13,r:4,color:'#FF4444',vx:0,vy:0},{x:5,y:5,r:2.5,color:'#FFD700',vx:.3,vy:.2},
+  {x:32,y:4,r:2,color:'#A78BFA',vx:-.2,vy:.25},{x:34,y:22,r:2.5,color:'#60A5FA',vx:-.25,vy:-.2},{x:6,y:22,r:2,color:'#34D399',vx:.2,vy:-.25}];
+(function animLogo(){
+  lx.clearRect(0,0,LW,LH);
+  for(let i=1;i<lnodes.length;i++){
+    lx.beginPath();lx.moveTo(lnodes[0].x,lnodes[0].y);lx.lineTo(lnodes[i].x,lnodes[i].y);
+    lx.strokeStyle='rgba(255,255,255,.25)';lx.lineWidth=.8;lx.stroke();
+  }
+  lnodes.forEach((n,i)=>{
+    lx.beginPath();lx.arc(n.x,n.y,n.r,0,Math.PI*2);lx.fillStyle=n.color;lx.fill();
+    if(i>0){n.x+=n.vx;n.y+=n.vy;if(n.x<2||n.x>LW-2)n.vx*=-1;if(n.y<2||n.y>LH-2)n.vy*=-1;}
+  });
+  requestAnimationFrame(animLogo);
+})();
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+async function requestNotifPerm() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+}
+function showNotif(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+    new Notification(title, { body, icon: '🏠', tag: 'roomsync-msg' });
+  }
+}
+requestNotifPerm();
+
+// ── Subscription badge ─────────────────────────────────────────────────────────
+async function checkSub() {
+  try {
+    const r = await fetch(`${API}/payment/status`, {headers: authH});
+    const d = await r.json();
+    const badge = document.getElementById('subBadge');
+    if (d.isPaid) {
+      const exp = new Date(d.subscriptionExpiry).toLocaleDateString('en-IN');
+      badge.className = 'sub-badge active';
+      badge.textContent = `✅ Active till ${exp}`;
+      badge.onclick = null;
+    }
+  } catch(e) {}
+}
+checkSub();
+
+function goPayment() { window.location.href = `payment.html?reason=seller&redirect=seller.html`; }
+
+// ── Socket.io ─────────────────────────────────────────────────────────────────
+const socket = io(SERVER);
+socket.emit('join', user.id);
+let unreadCount = 0;
+socket.on('receive_message', msg => {
+  const isInChat = document.getElementById('secChat').classList.contains('active');
+  const partnerId = (msg.senderId._id || msg.senderId);
+  if (isInChat && partnerId === currentPartnerId) {
+    appendMsg(msg);
+  } else {
+    // Show dot on Chat tab
+    unreadCount++;
+    document.getElementById('chatDot').style.display = 'block';
+    showNotif('RoomSync – New Message',
+      `${msg.senderId.fullName || 'Someone'}: ${msg.message}`);
+  }
+  loadConversations();
+});
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const key = tab.charAt(0).toUpperCase()+tab.slice(1);
+  document.getElementById('sec'+key).classList.add('active');
+  document.getElementById('tab'+key).classList.add('active');
+  if (tab==='view')  loadMyListings();
+  if (tab==='chat') { loadConversations(); unreadCount=0; document.getElementById('chatDot').style.display='none'; }
+}
+
+// ── Photo Preview ─────────────────────────────────────────────────────────────
+function previewPhotos(input) {
+  const c = document.getElementById('photoPreviews'); c.innerHTML='';
+  Array.from(input.files).slice(0,10).forEach(f => {
+    const img=document.createElement('img'); img.src=URL.createObjectURL(f); c.appendChild(img);
+  });
+}
+
+// ── Auto-detect Location ──────────────────────────────────────────────────────
+function detectLocation() {
+  if (!navigator.geolocation) return alert('Geolocation not supported.');
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const {latitude:lat,longitude:lng} = pos.coords;
+    document.getElementById('lat').value=lat; document.getElementById('lng').value=lng;
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+      const d = await r.json();
+      const a = d.address;
+      document.getElementById('location').value = [a.suburb,a.city||a.town,a.state].filter(Boolean).join(', ');
+    } catch { document.getElementById('location').value=`${lat.toFixed(4)},${lng.toFixed(4)}`; }
+  }, () => alert('Allow location access.'));
+}
+
+// ── Upload PG ─────────────────────────────────────────────────────────────────
+async function uploadPG() {
+  const pgName=document.getElementById('pgName').value.trim();
+  const location=document.getElementById('location').value.trim();
+  const gender=document.getElementById('genderAllowed').value;
+  const size=document.getElementById('roomSize').value;
+  if (!pgName||!location||!gender||!size) return showUpAlert('Fill all required fields.','error');
+
+  const btn=document.getElementById('uploadBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Posting…';
+  try {
+    const fd=new FormData();
+    fd.append('pgName',pgName); fd.append('location',location);
+    fd.append('lat',document.getElementById('lat').value);
+    fd.append('lng',document.getElementById('lng').value);
+    fd.append('genderAllowed',gender); fd.append('roomSize',size);
+    fd.append('rules',document.getElementById('rules').value);
+    Array.from(document.getElementById('photoInput').files).forEach(f=>fd.append('photos',f));
+
+    const r = await fetch(`${API}/pg/upload`,{method:'POST',headers:{'Authorization':`Bearer ${token}`},body:fd});
+    const d = await r.json();
+    if (r.status===402) { window.location.href=`payment.html?reason=seller&redirect=seller.html`; return; }
+    if (!r.ok) throw new Error(d.message);
+    showUpAlert('PG listed successfully! 🎉','success');
+    document.getElementById('pgName').value='';
+    document.getElementById('location').value='';
+    document.getElementById('genderAllowed').value='';
+    document.getElementById('roomSize').value='';
+    document.getElementById('rules').value='';
+    document.getElementById('photoInput').value='';
+    document.getElementById('photoPreviews').innerHTML='';
+    checkSub();
+  } catch(e) { showUpAlert(e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='🚀 Post Listing'; }
+}
+function showUpAlert(m,t) {
+  const b=document.getElementById('uploadAlert');
+  b.innerHTML=`<div class="msg-box ${t}">${m}</div>`;
+  if(t!=='success') setTimeout(()=>b.innerHTML='',5000);
+}
+
+// ── My Listings ───────────────────────────────────────────────────────────────
+async function loadMyListings() {
+  const g=document.getElementById('pgGrid');
+  g.innerHTML='<div style="padding:30px;text-align:center;color:#555"><span class="spinner"></span></div>';
+  try {
+    const r=await fetch(`${API}/pg/my-listings`,{headers:authH});
+    const pgs=await r.json();
+    if (!pgs.length){g.innerHTML='<div class="empty-state"><div style="font-size:40px">🏠</div><p>No listings yet.</p></div>';return;}
+    g.innerHTML='';
+    pgs.forEach(pg=>{
+      const card=document.createElement('div'); card.className='pg-card';
+      const ph=pg.photos.length?`<img src="${SERVER}/uploads/${pg.photos[0]}" alt=""/>`:'<div class="no-photo">🏠</div>';
+      card.innerHTML=`<div class="photos">${ph}</div>
+        <div class="pg-info">
+          <h3>${pg.pgName}</h3><p class="loc">📍 ${pg.location}</p>
+          <div class="pg-meta"><span class="badge g">${pg.genderAllowed}</span><span class="badge s">${pg.roomSize}</span></div>
+          <div class="stats"><span>👁 ${pg.views}</span><span>❤️ ${pg.likes}</span></div>
+          <button class="btn-del" onclick="deletePG('${pg._id}',this)">🗑 Delete</button>
+        </div>`;
+      g.appendChild(card);
+    });
+  } catch(e){g.innerHTML=`<div class="empty-state" style="color:#f66">${e.message}</div>`;}
+}
+
+async function deletePG(id,btn) {
+  if(!confirm('Delete this listing?'))return;
+  btn.disabled=true; btn.textContent='Deleting…';
+  try{
+    const r=await fetch(`${API}/pg/${id}`,{method:'DELETE',headers:authH});
+    const d=await r.json();if(!r.ok)throw new Error(d.message);
+    loadMyListings();
+  }catch(e){alert(e.message);btn.disabled=false;btn.textContent='🗑 Delete';}
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+let currentPartnerId=null, replyTo=null;
+
+async function loadConversations() {
+  const list=document.getElementById('convList');
+  try {
+    const r=await fetch(`${API}/chat/conversations`,{headers:authH});
+    const convs=await r.json();
+    if(!convs.length){list.innerHTML='<div style="padding:16px;text-align:center;color:#555;font-size:12px">No conversations yet.</div>';return;}
+    list.innerHTML='';
+    convs.forEach(c=>{
+      const d=document.createElement('div');
+      d.className=`conv-item${c.partnerId===currentPartnerId?' active':''}`;
+      d.innerHTML=`<div class="cn">${c.partnerName}</div><div class="cm">${c.lastMessage}</div>
+        ${c.unread>0?`<span class="unread-badge">${c.unread}</span>`:''}`;
+      d.onclick=()=>openConv(c.partnerId,c.partnerName);
+      list.appendChild(d);
+    });
+  } catch(e){}
+}
+
+async function openConv(partnerId, partnerName) {
+  currentPartnerId=partnerId;
+  document.getElementById('chatHead').innerHTML=`<div class="avatar">${partnerName.charAt(0).toUpperCase()}</div>${partnerName}`;
+  document.getElementById('chatInputRow').style.display='flex';
+  document.querySelectorAll('.conv-item').forEach(el=>el.classList.toggle('active',el.querySelector('.cn')?.textContent===partnerName));
+  const area=document.getElementById('messagesArea');
+  area.innerHTML='<div style="padding:20px;text-align:center;color:#555"><span class="spinner"></span></div>';
+  try {
+    const r=await fetch(`${API}/chat/messages/${partnerId}`,{headers:authH});
+    const msgs=await r.json();
+    area.innerHTML='';
+    if(!msgs.length){area.innerHTML='<div class="empty-chat"><div style="font-size:32px">💬</div><p>0 messages</p></div>';return;}
+    msgs.forEach(m=>appendMsg(m));
+  } catch(e){}
+}
+
+function appendMsg(msg) {
+  const area=document.getElementById('messagesArea');
+  if(area.querySelector('.empty-chat'))area.innerHTML='';
+  const mine=(msg.senderId._id||msg.senderId)===user.id;
+  const d=document.createElement('div'); d.className=`bubble ${mine?'sent':'recv'}`;
+  d.innerHTML=`${msg.message}<span class="time">${new Date(msg.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+    ${!mine?`<button class="reply-btn" onclick="setReply('${msg.message.replace(/'/g,"\\'")}')">↩ Reply</button>`:''}`;
+  area.appendChild(d); area.scrollTop=area.scrollHeight;
+}
+
+function setReply(txt) {
+  replyTo=txt;
+  const bar=document.getElementById('replyBar');
+  bar.style.display='block';
+  bar.innerHTML=`↩ "${txt.substring(0,50)}…" <button onclick="clearReply()">✕</button>`;
+  document.getElementById('chatInput').focus();
+}
+function clearReply(){replyTo=null;document.getElementById('replyBar').style.display='none';}
+
+function sendMsg() {
+  const input=document.getElementById('chatInput');
+  const msg=input.value.trim();
+  if(!msg||!currentPartnerId)return;
+  const full=replyTo?`[↩ "${replyTo.substring(0,30)}"] ${msg}`:msg;
+  socket.emit('send_message',{senderId:user.id,receiverId:currentPartnerId,message:full});
+  input.value=''; clearReply();
+}
+
+function logout(){localStorage.removeItem('rs_token');localStorage.removeItem('rs_user');window.location.replace('signin.html');}
+</script>
+</body>
+</html>

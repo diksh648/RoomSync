@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>RoomSync – Subscribe</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d0d1a;min-height:100vh;
+      display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:20px;}
+    body::before{content:'';position:fixed;top:-20%;left:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(120,0,30,.55) 0%,transparent 70%);pointer-events:none;}
+    body::after{content:'';position:fixed;bottom:-20%;right:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(10,20,80,.6) 0%,transparent 70%);pointer-events:none;}
+    .wrap{position:relative;z-index:10;width:100%;max-width:600px;text-align:center;}
+    .logo-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;}
+    h1{font-size:36px;font-weight:900;background:linear-gradient(135deg,#FF4444,#FF8C00);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .sub{color:#8888aa;font-size:13px;margin-bottom:28px;}
+    .page-title{color:#fff;font-size:22px;font-weight:700;margin-bottom:6px;}
+    .page-sub{color:#888;font-size:13px;margin-bottom:28px;}
+    .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:24px;}
+    .plan-card{background:rgba(22,22,40,.9);border:2px solid rgba(255,255,255,.08);
+      border-radius:18px;padding:24px 18px;cursor:pointer;transition:all .2s;text-align:center;position:relative;}
+    .plan-card:hover{border-color:rgba(255,100,50,.4);transform:translateY(-4px);}
+    .plan-card.selected{border-color:#FF6B35;background:rgba(255,100,50,.08);}
+    .plan-card .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;
+      padding:2px 12px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+    .plan-icon{font-size:32px;margin-bottom:10px;}
+    .plan-name{color:#fff;font-size:15px;font-weight:700;margin-bottom:6px;}
+    .plan-price{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF4444,#FF8C00);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+    .plan-period{color:#888;font-size:12px;margin-bottom:12px;}
+    .plan-feat{color:#aaa;font-size:12px;line-height:1.7;}
+    .pay-methods{display:flex;align-items:center;justify-content:center;gap:10px;
+      margin-bottom:22px;flex-wrap:wrap;}
+    .pay-methods span{color:#666;font-size:12px;}
+    .pay-badge{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+      border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;color:#ccc;}
+    .btn-pay{width:100%;border:none;border-radius:50px;padding:16px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;font-size:17px;
+      font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;
+      box-shadow:0 6px 28px rgba(255,68,68,.4);}
+    .btn-pay:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(255,68,68,.55);}
+    .btn-pay:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .btn-back{background:none;border:1px solid rgba(255,255,255,.15);border-radius:50px;
+      color:#888;padding:10px 28px;font-size:14px;cursor:pointer;margin-top:14px;
+      transition:all .2s;display:inline-block;}
+    .btn-back:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+    .msg{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;}
+    .msg.error{background:rgba(255,68,68,.15);color:#ff6b6b;border:1px solid rgba(255,68,68,.3);}
+    .msg.success{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+    .free-note{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);
+      border-radius:12px;padding:14px 18px;margin-bottom:22px;color:#60A5FA;font-size:13px;}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-row">
+    <canvas id="logoCanvas" width="60" height="42"></canvas>
+    <h1>RoomSync</h1>
+  </div>
+  <p class="sub">Sync your room with your Buddy!</p>
+
+  <p class="page-title" id="pageTitle">Choose Your Plan</p>
+  <p class="page-sub"   id="pageSub">Unlock full access to RoomSync</p>
+
+  <div id="freeNote" style="display:none" class="free-note">
+    💬 You've used <strong id="usedCount">0</strong>/5 free messages. Subscribe to continue chatting with sellers.
+  </div>
+
+  <div id="alertBox"></div>
+
+  <!-- Plans rendered by JS -->
+  <div class="plans" id="plansContainer"></div>
+
+  <p style="color:#888;font-size:12px;margin-bottom:12px;">Pay securely via</p>
+  <div class="pay-methods">
+    <div class="pay-badge">📱 Paytm</div>
+    <div class="pay-badge">💚 PhonePe</div>
+    <div class="pay-badge">🔵 UPI</div>
+    <div class="pay-badge">💳 Card</div>
+    <div class="pay-badge">🏦 Net Banking</div>
+  </div>
+
+  <button class="btn-pay" id="payBtn" onclick="startPayment()">Pay Now</button>
+  <br/>
+  <button class="btn-back" onclick="goBack()">← Go Back</button>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const API   = 'http://localhost:3000/api';
+  const token = localStorage.getItem('rs_token');
+  const user  = JSON.parse(localStorage.getItem('rs_user') || 'null');
+  if (!token || !user) window.location.replace('signin.html');
+
+  const params   = new URLSearchParams(location.search);
+  const reason   = params.get('reason'); // 'seller' | 'customer'
+  const redirect = params.get('redirect') || (user.role==='seller' ? 'seller.html' : 'customer.html');
+
+  let selectedPlan = '';
+
+  const allPlans = {
+    seller_monthly:   { icon:'🏪', name:'Seller Plan',       price:'₹200', period:'/month',      feat:'✔ List unlimited PGs\n✔ View all inquiries\n✔ Real-time chat' },
+    customer_monthly: { icon:'🏠', name:'Customer Monthly',  price:'₹50',  period:'/month',       feat:'✔ Unlimited chats\n✔ Contact any seller\n✔ Save favourites' },
+    customer_3month:  { icon:'⭐', name:'Customer 3-Month',  price:'₹130', period:'/3 months',    feat:'✔ Best Value\n✔ Unlimited chats\n✔ Priority support',  badge:'Best Value' }
+  };
+
+  function renderPlans() {
+    const container = document.getElementById('plansContainer');
+    const keys = user.role === 'seller'
+      ? ['seller_monthly']
+      : ['customer_monthly', 'customer_3month'];
+
+    if (user.role === 'seller') {
+      document.getElementById('pageTitle').textContent = 'Seller Subscription';
+      document.getElementById('pageSub').textContent   = 'Subscribe to start listing your PGs';
+    } else {
+      document.getElementById('pageTitle').textContent = 'Customer Plans';
+      document.getElementById('pageSub').textContent   = 'Choose a plan to continue chatting';
+    }
+
+    keys.forEach(key => {
+      const p   = allPlans[key];
+      const div = document.createElement('div');
+      div.className = 'plan-card';
+      div.id = `plan_${key}`;
+      div.onclick = () => selectPlan(key);
+      div.innerHTML = `
+        ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+        <div class="plan-icon">${p.icon}</div>
+        <div class="plan-name">${p.name}</div>
+        <div class="plan-price">${p.price}</div>
+        <div class="plan-period">${p.period}</div>
+        <div class="plan-feat">${p.feat.split('\n').join('<br/>')}</div>`;
+      container.appendChild(div);
+    });
+
+    // Auto-select first
+    selectPlan(keys[0]);
+  }
+
+  function selectPlan(key) {
+    selectedPlan = key;
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+    const el = document.getElementById(`plan_${key}`);
+    if (el) el.classList.add('selected');
+  }
+
+  async function checkFreeMessages() {
+    if (user.role !== 'customer') return;
+    try {
+      const r = await fetch(`${API}/payment/status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const d = await r.json();
+      if (!d.isPaid && d.messagesSentCount >= 5) {
+        document.getElementById('freeNote').style.display = 'block';
+        document.getElementById('usedCount').textContent = d.messagesSentCount;
+      }
+    } catch(e) {}
+  }
+
+  async function startPayment() {
+    if (!selectedPlan) return showAlert('Please select a plan first.');
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creating order…';
+    try {
+      const r = await fetch(`${API}/payment/create-order`, {
+        method:'POST',
+        headers:{ 'Authorization':`Bearer ${token}`, 'Content-Type':'application/json' },
+        body: JSON.stringify({ plan: selectedPlan })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.message);
+
+      const options = {
+        key:         d.key,
+        amount:      d.order.amount,
+        currency:    'INR',
+        name:        'RoomSync',
+        description: d.planInfo.label,
+        order_id:    d.order.id,
+        prefill: {
+          name:  user.fullName,
+          email: user.email,
+          contact: ''
+        },
+        theme: { color: '#FF4444' },
+        // This shows Paytm, PhonePe, UPI, Cards etc.
+        method: { upi: true, card: true, netbanking: true, wallet: true },
+        handler: async function(response) {
+          btn.innerHTML = '<span class="spinner"></span>Verifying…';
+          try {
+            const vr = await fetch(`${API}/payment/verify`, {
+              method:'POST',
+              headers:{ 'Authorization':`Bearer ${token}`, 'Content-Type':'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature:  response.razorpay_signature,
+                plan: selectedPlan
+              })
+            });
+            const vd = await vr.json();
+            if (!vr.ok) throw new Error(vd.message);
+            showAlert('🎉 Payment successful! Subscription activated.', 'success');
+            setTimeout(() => window.location.replace(redirect), 2000);
+          } catch(e) {
+            showAlert('Payment verification failed: ' + e.message);
+            btn.disabled = false; btn.textContent = 'Pay Now';
+          }
+        },
+        modal: {
+          ondismiss: () => { btn.disabled = false; btn.textContent = 'Pay Now'; }
+        }
+      };
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch(e) {
+      showAlert(e.message);
+      btn.disabled = false; btn.textContent = 'Pay Now';
+    }
+  }
+
+  function showAlert(msg, type='error') {
+    const b = document.getElementById('alertBox');
+    b.innerHTML = `<div class="msg ${type}">${msg}</div>`;
+  }
+
+  function goBack() {
+    window.location.replace(user.role==='seller' ? 'seller.html' : 'customer.html');
+  }
+
+  // Animated logo
+  const canvas = document.getElementById('logoCanvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const nodes = [
+    {x:30,y:21,r:5,color:'#FF4444',vx:0,vy:0},
+    {x:8, y:8, r:3,color:'#FFD700',vx:.3, vy:.2 },
+    {x:52,y:6, r:3,color:'#A78BFA',vx:-.2,vy:.3 },
+    {x:56,y:34,r:3,color:'#60A5FA',vx:-.3,vy:-.2},
+    {x:12,y:36,r:3,color:'#34D399',vx:.2, vy:-.3},
+  ];
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=1;i<nodes.length;i++){
+      ctx.beginPath();ctx.moveTo(nodes[0].x,nodes[0].y);ctx.lineTo(nodes[i].x,nodes[i].y);
+      ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;ctx.stroke();
+    }
+    nodes.forEach((n,i)=>{
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.color;ctx.fill();
+      if(i>0){n.x+=n.vx;n.y+=n.vy;if(n.x<3||n.x>W-3)n.vx*=-1;if(n.y<3||n.y>H-3)n.vy*=-1;}
+    });
+    requestAnimationFrame(draw);
+  })();
+
+  renderPlans();
+  checkFreeMessages();
+</script>
+</body>
+</html>

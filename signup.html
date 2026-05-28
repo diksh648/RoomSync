@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RoomSync – Sign Up</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0d0d1a;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      position:relative;overflow:hidden;padding:20px 0;}
+    body::before{content:'';position:fixed;top:-20%;left:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(120,0,30,.55) 0%,transparent 70%);pointer-events:none;}
+    body::after{content:'';position:fixed;bottom:-20%;right:-10%;width:50%;height:70%;
+      background:radial-gradient(ellipse,rgba(10,20,80,.6) 0%,transparent 70%);pointer-events:none;}
+
+    .wrap{position:relative;z-index:10;width:100%;max-width:460px;padding:20px;text-align:center;}
+
+    .logo-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;}
+    .logo-row svg{animation:float 4s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+    h1{font-size:34px;font-weight:900;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .sub{color:#8888aa;font-size:13px;margin-bottom:24px;}
+
+    .card{background:rgba(22,22,40,.9);border:1px solid rgba(255,255,255,.07);
+      border-radius:20px;padding:30px 32px;backdrop-filter:blur(12px);
+      box-shadow:0 20px 60px rgba(0,0,0,.5);}
+
+    .card-title{color:#fff;font-size:18px;font-weight:700;margin-bottom:20px;text-align:left;}
+
+    .field{margin-bottom:14px;text-align:left;}
+    .field label{display:block;color:#aaa;font-size:11px;margin-bottom:5px;font-weight:500;letter-spacing:.5px;}
+    .field input,.field select{
+      width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;outline:none;
+      transition:border-color .2s;-webkit-appearance:none;
+    }
+    .field select option{background:#1a1a2e;color:#fff;}
+    .field input:focus,.field select:focus{border-color:#FF6B35;}
+    .field input::placeholder{color:#555;}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+    .otp-row{display:flex;gap:8px;margin-top:6px;}
+    .otp-row input{flex:1;}
+    .btn-otp{padding:12px 14px;border:none;border-radius:10px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;
+      font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+    .btn-otp:hover{opacity:.85;}
+    .btn-otp:disabled{opacity:.45;cursor:not-allowed;}
+
+    .btn-main{width:100%;border:none;border-radius:50px;padding:15px;
+      background:linear-gradient(135deg,#FF4444,#FF8C00);color:#fff;
+      font-size:16px;font-weight:700;cursor:pointer;
+      transition:transform .2s,box-shadow .2s;
+      box-shadow:0 6px 24px rgba(255,68,68,.4);margin-top:6px;}
+    .btn-main:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(255,68,68,.55);}
+    .btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    .signin-row{color:#888;font-size:13px;margin-top:16px;}
+    .signin-row a{color:#FF8C00;text-decoration:none;font-weight:600;}
+    .signin-row a:hover{text-decoration:underline;}
+
+    .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:left;}
+    .msg.error{background:rgba(255,68,68,.15);color:#ff6b6b;border:1px solid rgba(255,68,68,.3);}
+    .msg.success{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+
+    .success-screen{display:none;text-align:center;padding:40px 20px;}
+    .success-screen .check{font-size:64px;margin-bottom:16px;animation:pop .5s ease;}
+    @keyframes pop{0%{transform:scale(0);}80%{transform:scale(1.1);}100%{transform:scale(1);}}
+    .success-screen h2{color:#34d399;font-size:24px;margin-bottom:8px;}
+    .success-screen p{color:#888;font-size:14px;margin-bottom:24px;}
+
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .dot{animation:blink 2s ease-in-out infinite;}
+    .dot:nth-child(1){animation-delay:0s;}.dot:nth-child(2){animation-delay:.4s;}
+    .dot:nth-child(3){animation-delay:.8s;}.dot:nth-child(4){animation-delay:1.2s;}
+    .dot:nth-child(5){animation-delay:1.6s;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+    .verified-badge{color:#34d399;font-size:11px;margin-left:6px;font-weight:600;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-row">
+    <svg width="44" height="32" viewBox="0 0 160 110" fill="none">
+      <line x1="80" y1="55" x2="30"  y2="25"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="135" y2="20"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="145" y2="70"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="50"  y2="85"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <line x1="80" y1="55" x2="15"  y2="65"  stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <circle cx="80"  cy="55" r="7" fill="#FF4444"/>
+      <circle class="dot" cx="30"  cy="25" r="5" fill="#FFD700"/>
+      <circle class="dot" cx="135" cy="20" r="4" fill="#A78BFA"/>
+      <circle class="dot" cx="145" cy="70" r="5" fill="#60A5FA"/>
+      <circle class="dot" cx="50"  cy="85" r="4" fill="#34D399"/>
+      <circle class="dot" cx="15"  cy="65" r="4" fill="#F472B6"/>
+    </svg>
+    <h1>RoomSync</h1>
+  </div>
+  <p class="sub">Create your account</p>
+
+  <div class="card">
+    <div id="formSection">
+      <p class="card-title">Create Account 🏠</p>
+      <div id="alertBox"></div>
+
+      <div class="field">
+        <label>FULL NAME</label>
+        <input type="text" id="fullName" placeholder="John Doe"/>
+      </div>
+
+      <!-- Email + OTP -->
+      <div class="field">
+        <label>EMAIL <span id="verifiedBadge" class="verified-badge" style="display:none">✔ Verified</span></label>
+        <input type="email" id="email" placeholder="your@email.com"/>
+        <div class="otp-row">
+          <input type="text" id="otpInput" maxlength="6" placeholder="Enter OTP sent to email" style="display:none"/>
+          <button class="btn-otp" id="sendOtpBtn" onclick="sendOTP()">Send OTP</button>
+          <button class="btn-otp" id="verifyOtpBtn" onclick="verifyOTP()" style="display:none;background:linear-gradient(135deg,#34d399,#059669)">Verify</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>PHONE NUMBER</label>
+        <input type="tel" id="phone" placeholder="+91 99999 99999"/>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>PROFESSION</label>
+          <select id="profession">
+            <option value="">Select…</option>
+            <option value="Student">Student</option>
+            <option value="Working Professional">Working Professional</option>
+            <option value="Business">Business</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>GENDER</label>
+          <select id="gender">
+            <option value="">Select…</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>PASSWORD</label>
+        <input type="password" id="password" placeholder="Min 6 characters"/>
+      </div>
+
+      <button class="btn-main" id="signupBtn" onclick="signup()">Create Account</button>
+    </div>
+
+    <!-- ── Success Screen ── -->
+    <div class="success-screen" id="successScreen">
+      <div class="check">🎉</div>
+      <h2>Account Created!</h2>
+      <p>Your account has been created successfully.<br/>Please sign in to continue.</p>
+      <button class="btn-main" onclick="window.location.href='signin.html'">Sign In Now</button>
+    </div>
+
+    <p class="signin-row" id="signinRow">Already have an account? <a href="signin.html">Sign In</a></p>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  let emailVerified = false;
+
+  function showAlert(msg, type='error'){
+    const b = document.getElementById('alertBox');
+    b.innerHTML = `<div class="msg ${type}">${msg}</div>`;
+    if(type !== 'success') setTimeout(()=> b.innerHTML='', 5000);
+  }
+
+  async function sendOTP(){
+    const email = document.getElementById('email').value.trim();
+    if(!email || !email.includes('@')) return showAlert('Enter a valid email first.');
+    const btn = document.getElementById('sendOtpBtn');
+    btn.disabled = true; btn.innerHTML='<span class="spinner"></span>Sending…';
+    try{
+      // First save partial user data so we can store OTP
+      await fetch(`${API}/auth/signup`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          fullName: document.getElementById('fullName').value || 'pending',
+          email,
+          phone:    document.getElementById('phone').value || '0000000000',
+          password: document.getElementById('password').value || 'temp_placeholder'
+        })
+      });
+      const r = await fetch(`${API}/auth/send-otp`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email, type:'signup'})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+      showAlert('OTP sent to your email!','success');
+      document.getElementById('otpInput').style.display = 'block';
+      document.getElementById('verifyOtpBtn').style.display = 'block';
+    }catch(e){ showAlert(e.message); }
+    finally{ btn.disabled=false; btn.textContent='Resend OTP'; }
+  }
+
+  async function verifyOTP(){
+    const email = document.getElementById('email').value.trim();
+    const otp   = document.getElementById('otpInput').value.trim();
+    if(!otp) return showAlert('Enter the OTP.');
+    try{
+      const r = await fetch(`${API}/auth/verify-otp`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email, otp})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+      emailVerified = true;
+      document.getElementById('otpInput').style.display = 'none';
+      document.getElementById('verifyOtpBtn').style.display = 'none';
+      document.getElementById('sendOtpBtn').style.display = 'none';
+      document.getElementById('verifiedBadge').style.display = 'inline';
+      showAlert('Email verified!','success');
+    }catch(e){ showAlert(e.message); }
+  }
+
+  async function signup(){
+    if(!emailVerified) return showAlert('Please verify your email first.');
+    const fullName   = document.getElementById('fullName').value.trim();
+    const email      = document.getElementById('email').value.trim();
+    const phone      = document.getElementById('phone').value.trim();
+    const profession = document.getElementById('profession').value;
+    const gender     = document.getElementById('gender').value;
+    const password   = document.getElementById('password').value;
+
+    if(!fullName || !email || !phone || !password)
+      return showAlert('Please fill in all required fields.');
+    if(password.length < 6)
+      return showAlert('Password must be at least 6 characters.');
+
+    const btn = document.getElementById('signupBtn');
+    btn.disabled = true; btn.innerHTML='<span class="spinner"></span>Creating…';
+    try{
+      const r = await fetch(`${API}/auth/signup`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({fullName, email, phone, profession, gender, password})
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.message);
+      // Show success screen
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('signinRow').style.display  = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    }catch(e){
+      showAlert(e.message);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    }
+  }
+</script>
+</body>
+</html>
