@@ -6,11 +6,11 @@ const http       = require('http');
 const { Server } = require('socket.io');
 const path       = require('path');
 
-const authRoutes    = require('../routes/auth');
-const pgRoutes      = require('../routes/pg');
-const chatRoutes    = require('../routes/chat');
-const paymentRoutes = require('../routes/payment');
-const Chat          = require('../models/Chat');
+const authRoutes    = require('./routes/auth');
+const pgRoutes      = require('./routes/pg');
+const chatRoutes    = require('./routes/chat');
+const paymentRoutes = require('./routes/payment');
+const Chat          = require('./models/Chat');
 
 const app    = express();
 const server = http.createServer(app);
