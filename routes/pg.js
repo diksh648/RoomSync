@@ -3,8 +3,8 @@ const router  = express.Router();
 const multer  = require('multer');
 const path    = require('path');
 const fs      = require('fs');
-const PG      = require('../models/PG');
-const User    = require('../models/User');
+const PG      = require('../models/pg');
+const User    = require('../models/user');
 const authMW  = require('../middleware/auth');
 
 const uploadsDir = path.join(__dirname, '..', 'uploads');
