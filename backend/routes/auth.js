@@ -11,10 +11,12 @@ const otpStore = new Map();
 
 // ── Gmail transporter ──────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.SMTP_HOST,
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
   }
 });
 
@@ -24,7 +26,7 @@ function generateOTP() {
 
 async function sendOTPEmail(to, otp, subject) {
   return transporter.sendMail({
-    from: `"RoomSync" <${process.env.GMAIL_USER}>`,
+    from: `"RoomSync" <${process.env.SMTP_USER}>`,
     to,
     subject,
     html: `
