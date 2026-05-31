@@ -3,9 +3,9 @@ const router  = express.Router();
 const multer  = require('multer');
 const path    = require('path');
 const fs      = require('fs');
-const PG      = require('../models/pg');
-const User    = require('../models/user');
-const authMW  = require('../middleware/auth');
+const PG      = require('./models/pg');
+const User    = require('./models/user');
+const authMW  = require('./middleware/auth');
 
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
