@@ -2,8 +2,8 @@ const express  = require('express');
 const router   = express.Router();
 const crypto   = require('crypto');
 const Razorpay = require('razorpay');
-const User     = require('./models/User');
-const authMW   = require('./middleware/auth');
+const User     = require('../models/User');
+const authMW   = require('../middleware/auth');
 
 const razorpay = new Razorpay({
   key_id:     process.env.RAZORPAY_KEY_ID,
